@@ -55,7 +55,7 @@ Objects
 '''
 class Player (pygame.sprite.Sprite):
     def __init__ (self, x, y, imgfile="Elf1.png"):
-        (sizex, sizey)=(45,45)
+        (sizex, sizey)=(40,40)
         pygame.sprite.Sprite.__init__(self)
         img = pygame.image.load(os.path.join('Images',imgfile)).convert()
         img = pygame.transform.scale(img,(sizex, sizey))
@@ -107,8 +107,26 @@ class Wall(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.image = img
         self.rect  = self.image.get_rect()
-        self.rect.x=x
-        self.rect.y=y
+        self.x=x
+        self.y=y
+        self.visible=False
+        self.show()
+        
+    def show(self):
+        if self.visible:
+            self.rect.x=self.x
+            self.rect.y=self.y
+        else:
+            self.rect.x=-100
+            self.rect.y=-100
+                    
+    def update (self,playerx,playery):
+        if abs(playerx-self.x)<2*tx and abs(playery-self.y)<2*ty:
+            self.visible=True
+        else:
+            self.visible=False
+        self.show()
+        
         
 class Chest(pygame.sprite.Sprite):
     
@@ -229,6 +247,7 @@ def playgame():
         world.fill(colour)
         player_list.update(wall_list,chest_list,coin_list)
         player_list.draw(world) # draw player
+        wall_list.update(player.rect.x, player.rect.y)
         wall_list.draw(world)
         chest_list.draw(world)
         coin_list.draw(world)
