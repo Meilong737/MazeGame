@@ -55,7 +55,7 @@ Objects
 '''
 class Player (pygame.sprite.Sprite):
     def __init__ (self, x, y, imgfile="Elf1.png",lvl=1):
-        (sizex, sizey)=(40,40)
+        (sizex, sizey)=(35,35)
         pygame.sprite.Sprite.__init__(self)
         img = pygame.image.load(os.path.join('Images',imgfile)).convert()
         img = pygame.transform.scale(img,(sizex, sizey))
@@ -164,6 +164,7 @@ class platform_game():
     def __init__(self):
         self.clock = pygame.time.Clock()
         pygame.init()
+        self.bestscore = 0
         self.world    = pygame.display.set_mode([worldx,worldy])
 
     def setup(self,lvl=1):
@@ -224,7 +225,7 @@ class platform_game():
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     print("gameover, your score is " +str(int(self.player.score)))
-                    pygame.quit(); sys.exit()
+#                    pygame.quit(); sys.exit()
                     main = False
                     
                 if event.type == pygame.KEYDOWN:
@@ -237,8 +238,6 @@ class platform_game():
                     if event.key == pygame.K_DOWN or event.key == ord('s'):
                         self.player.control(0,steps)
                     if event.key == ord('q'):
-                        pygame.quit()
-                        sys.exit()
                         main=False
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_LEFT or event.key == ord('a'):
@@ -259,12 +258,108 @@ class platform_game():
             largeFont=pygame.font.SysFont("arial",25)
             text=largeFont.render("coins: "+str(int(self.player.score)),1,WHITE)
             self.world.blit(text,(10,10))
+            self.clock.tick(fps)
+            pygame.display.flip()
+            self.player.score-=1/fps
             
+    def instructions(self):
+        return
+    
+    def entername (self):
+        main=True
+        name=""
+        abc=['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',' ']
+        while main ==True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit();sys.exit()
+                    main = False
+                if event.type == pygame.KEYDOWN:
+                    main=False
+                    for ch in abc:
+                        if event.key==ord(ch):
+                            name+=ch
+                            main=True
+                            
+                        
+            self.world.fill(PURPLE)
+            largeFont=pygame.font.SysFont("arial",35)
+            text=largeFont.render("enter your name",1,WHITE)
+            self.world.blit(text,(50,50))
+            smallFont=pygame.font.SysFont("freemono",30)
+            text=smallFont.render(">" +name,0,WHITE)
+            self.world.blit(text,(50,100))
             pygame.display.flip()
             self.clock.tick(fps)
-            self.player.score-=1/fps
+        return name
+    
+    def menu(self):
+        
+#bestscores=loadscores(filename)
+        main=True
+        name=""
+       
+        lvl=1
+        while main == True:
+            try:
+                score = int (self.player.score)
+                if score > self.bestscore:
+                    self.bestname=name
+                    self.bestscore=score
+                bestscore=int (self.bestscore)
+                bestname=self.bestname
+            except:
+                bestscore = 0
+                bestname = ""
+                score = 0
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit(); sys.exit()
+                    main = False
+                if event.type == pygame.KEYDOWN:
+                    if event.key == ord('e'):
+                        print("enter name")
+                        name=self.entername()
+                    if event.key == ord ('i'):
+                        print('instructions')
+                        self.instructions()
+                    if event.key == ord('p'):
+                        print('play')
+                        pygame.event.clear()
+                        mygame.setup(lvl=lvl)
+                        self.playgame()
+#                        bestscores=playgame(bestscores,name=name)
+                    if event.key == ord('q'):
+#                        savescores(filename,bestscores)
+                        pygame.quit()
+                        sys.exit()
+                        main=False
+            self.world.fill(ORANGE)
+            largeFont=pygame.font.SysFont("arial",35)
+            text=largeFont.render("Maze Game by Evelyn Hyland ",1,WHITE)
+            self.world.blit(text,(350,50))
+            text=largeFont.render("(P)lay ",0,WHITE)
+            self.world.blit(text,(200,200))
+            text=largeFont.render("(Q)uit",1,WHITE)
+            self.world.blit(text,(200,150))
+            text=largeFont.render("(I)nstructions",0,WHITE)
+            self.world.blit(text,(200,250))
+            text=largeFont.render("(E)nter Name",0,WHITE)
+            self.world.blit(text,(200,300))
+            text=largeFont.render("Good luck "+name+"!",1,WHITE)
+            self.world.blit(text,(200,500))
+            text=largeFont.render("Most recent score "+str(score),1,WHITE)
+            self.world.blit(text,(700,250))
+            text=largeFont.render("Highest score "+str(bestscore)+" by "+bestname,1,WHITE)
+            self.world.blit(text,(700,300))
+            text=largeFont.render("(L)evel",0,WHITE)
+            self.world.blit(text,(200,350))
+        
+            pygame.display.flip()
+            self.clock.tick(fps)
 
 lvl=2
 mygame=platform_game()
+mygame.menu()
 mygame.setup(lvl=lvl)
 mygame.playgame()
